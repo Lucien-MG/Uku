@@ -1,0 +1,4 @@
+name = "Uku"
+uuid = "d514d6aa-b14f-4257-a1ba-aa39d9fbba58"
+authors = ["Lucien Martin-Gaffe <lucien.martingaffe@gmail.com>"]
+version = "0.1.0"
