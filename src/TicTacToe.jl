@@ -1,25 +1,26 @@
+using LinearAlgebra
 
-struct TicTacToe
-    board_taken
+mutable struct TicTacToe
+    board_free
 
     board_x
     board_o
 
-    turn_x
-    turn_o
+    turn
 
-    TicTacToe() = new([1 1 1; 1 1 1; 1 1 1], [0 0 0; 0 0 0; 0 0 0], [0 0 0; 0 0 0; 0 0 0], 1, 0)
+    TicTacToe() = new([1 1 1; 1 1 1; 1 1 1], [0 0 0; 0 0 0; 0 0 0], [0 0 0; 0 0 0; 0 0 0], 0)
 end
 
 function play!(tictactoe:: TicTacToe, move:: Matrix{Int64})
-    #(move .* tictactoe.turn_x) 
-    #tictactoe.board_x .= tictactoe.board_taken #.* (move .* tictactoe.turn_x) 
-    #tictactoe.board_o .= tictactoe.board_taken #.* (move .* tictactoe.turn_o)
+    #tictactoe.board_x .= tictactoe.board_free .* (move .* tictactoe.turn_x) 
+    #tictactoe.board_o .= tictactoe.board_free .* (move .* tictactoe.turn_x)
+    broadcast!(*, tictactoe.board_x, tictactoe.board_free, move, tictactoe.turn)
+    broadcast!(*, tictactoe.board_o, tictactoe.board_free, move, tictactoe.turn)
 
-    tictactoe.board_taken .-= tictactoe.board_taken #.* move
+    #tictactoe.board_free .-= move
+    broadcast!(-, tictactoe.board_free, move)
 
-    #tictactoe.turn_x = (tictactoe.turn_x + 1) % 2
-    #tictactoe.turn_o = (tictactoe.turn_o + 1) % 2
+    # tictactoe.turn = tictactoe.turn + 1
     return nothing
 end
 

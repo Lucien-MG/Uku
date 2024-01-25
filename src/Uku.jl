@@ -2,35 +2,30 @@ module Uku
 
 include("TicTacToe.jl")
 
-function play_tictactoe(game, move)
-    for i=1:1000000
+function random_move(move)
+    fill!(move, 0)
+
+    # Generate random indices for the position of the '1'
+    row_index = rand(1:3)
+    col_index = rand(1:3)
+
+    # Set the chosen position to '1'
+    move[row_index, col_index] = 1
+
+    return move
+end
+
+function play_tictactoe(game)
+    move = zeros(Int, 3, 3)
+    for i=1:100000000
+        move .= random_move(move)
         play!(game, move)
     end
 end
 
-function test2!(a, b)
-    a .-= a .* b .* b .* b .* 1
-end
-
-function test(a, b)
-    for i=1:100000
-        test2!(a, b)
-    end
-end
-
 const game = TicTacToe()
-const move = [0 0 0; 0 1 0; 0 0 0]
 
-@time play_tictactoe(game, move)
-@time play_tictactoe(game, move)
-
-a = [0 0 0; 0 0 0; 0 0 0]
-b = [0 0 0; 0 0 0; 0 0 0]
-
-@time test(a, b)
-@time test(a, b)
-
-@time test2!(a, b)
-@time test2!(a, b)
+@time play_tictactoe(game)
+@time play_tictactoe(game)
 
 end # module Uku
