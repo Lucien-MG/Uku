@@ -12,16 +12,21 @@ mutable struct TicTacToe
 end
 
 function play!(tictactoe:: TicTacToe, move:: Matrix{Int64})
-    #tictactoe.board_x .= tictactoe.board_free .* (move .* tictactoe.turn_x) 
-    #tictactoe.board_o .= tictactoe.board_free .* (move .* tictactoe.turn_x)
     broadcast!(*, tictactoe.board_x, tictactoe.board_free, move, tictactoe.turn)
-    broadcast!(*, tictactoe.board_o, tictactoe.board_free, move, tictactoe.turn)
+    broadcast!(*, tictactoe.board_o, tictactoe.board_free, move, (tictactoe.turn + 1) % 2)
 
-    #tictactoe.board_free .-= move
     broadcast!(-, tictactoe.board_free, move)
 
-    # tictactoe.turn = tictactoe.turn + 1
-    return nothing
+    tictactoe.turn = (tictactoe.turn + 1) % 2
+end
+
+function is_finished!(tictactoe:: TicTacToe)
+    broadcast!(*, tictactoe.board_x, tictactoe.board_free, move, tictactoe.turn)
+    broadcast!(*, tictactoe.board_o, tictactoe.board_free, move, (tictactoe.turn + 1) % 2)
+
+    broadcast!(-, tictactoe.board_free, move)
+
+    tictactoe.turn = (tictactoe.turn + 1) % 2
 end
 
 function plot(tictactoe:: TicTacToe)
