@@ -17,7 +17,7 @@ end
 
 function play_tictactoe(game)
     move = zeros(Int, 3, 3)
-    for i=1:100000000
+    for i=1:1000000
         move .= random_move(move)
         play!(game, move)
     end
