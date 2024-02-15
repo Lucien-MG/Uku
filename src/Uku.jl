@@ -1,5 +1,6 @@
 module Uku
 
+include("KarmedBandit.jl")
 include("TicTacToe.jl")
 
 function random_move(move)
@@ -23,9 +24,21 @@ function play_tictactoe(game)
     end
 end
 
+function play_karmed(karmedbandit)
+    reward = 0
+    for i=1:10000000
+        reward = step!(karmedbandit, 1)
+    end
+end
+
 const game = TicTacToe()
+
+const karmedbandit = KarmedBandit()
 
 @time play_tictactoe(game)
 @time play_tictactoe(game)
+
+@time play_karmed(karmedbandit)
+@time play_karmed(karmedbandit)
 
 end # module Uku
