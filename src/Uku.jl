@@ -1,6 +1,7 @@
 module Uku
 
 include("KarmedBandit.jl")
+include("reinforcement-learning/Qlearning.jl")
 include("TicTacToe.jl")
 
 function random_move(move)
@@ -24,21 +25,27 @@ function play_tictactoe(game)
     end
 end
 
-function play_karmed(karmedbandit)
+function play_karmed(karmedbandit, qlearning)
+    action = 0
     reward = 0
-    for i=1:10000000
-        reward = step!(karmedbandit, 1)
+    for i=1:1000000
+        action = action!(qlearning)
+        reward = step!(karmedbandit, action)
+
+        learn!(qlearning, action, reward)
     end
+    print(qlearning)
 end
 
 const game = TicTacToe()
 
 const karmedbandit = KarmedBandit()
+const qlearning = Qlearning(10)
 
 @time play_tictactoe(game)
 @time play_tictactoe(game)
 
-@time play_karmed(karmedbandit)
-@time play_karmed(karmedbandit)
+@time play_karmed(karmedbandit, qlearning)
+@time play_karmed(karmedbandit, qlearning)
 
 end # module Uku
