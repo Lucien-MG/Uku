@@ -1,51 +1,71 @@
 module Uku
 
-include("KarmedBandit.jl")
-include("reinforcement-learning/Qlearning.jl")
-include("TicTacToe.jl")
+using DelimitedFiles
 
-function random_move(move)
-    fill!(move, 0)
+include("environments/KarmedBandit.jl")
+include("reinforcement-learning/EGreedy.jl")
 
-    # Generate random indices for the position of the '1'
-    row_index = rand(1:3)
-    col_index = rand(1:3)
+function play_karmed(karmedbandit, egreedy, nb_steps)
+    all_rewards = []
+    optimal_moves = []
 
-    # Set the chosen position to '1'
-    move[row_index, col_index] = 1
+    for i=1:nb_steps
+        action = policy(egreedy)
 
-    return move
-end
+        reward = step(karmedbandit, action)
 
-function play_tictactoe(game)
-    move = zeros(Int, 3, 3)
-    for i=1:1000000
-        move .= random_move(move)
-        play!(game, move)
+        learn(egreedy, action, reward)
+
+        append!(all_rewards, reward)
+        append!(optimal_moves, action == argmax(karmedbandit.q_values))
     end
+    
+    return all_rewards, optimal_moves
 end
 
-function play_karmed(karmedbandit, qlearning)
-    action = 0
-    reward = 0
-    for i=1:1000000
-        action = action!(qlearning)
-        reward = step!(karmedbandit, action)
+function testbed_karmed(nb_runs, nb_steps, epsilon, alpha, nb_actions)
+    karmedbandit = KarmedBandit()
+    egreedy = Egreedy(epsilon, alpha, nb_actions)
 
-        learn!(qlearning, action, reward)
+    rewards, optimal_moves = play_karmed(karmedbandit, egreedy, nb_steps)
+
+    for i=1:nb_runs
+        karmedbandit = KarmedBandit()
+        egreedy = Egreedy(epsilon, alpha, nb_actions)
+
+        env_rewards, env_optimal_moves = play_karmed(karmedbandit, egreedy, nb_steps)
+        rewards .+= env_rewards
+        optimal_moves .+= env_optimal_moves
     end
-    print(qlearning)
+
+    # Mean
+    rewards .= rewards ./ nb_runs
+    optimal_moves .= (optimal_moves .* 100) ./ nb_runs
+
+    return rewards, optimal_moves
 end
 
-const game = TicTacToe()
+nb_runs = 2000
+nb_steps = 5000
 
-const karmedbandit = KarmedBandit()
-const qlearning = Qlearning(10)
+rewards_1, optimal_moves_1 = testbed_karmed(nb_runs, nb_steps, 0.1, 0.1, 10)
+rewards_2, optimal_moves_2 = testbed_karmed(nb_runs, nb_steps, 0.01, 0.1, 10)
+rewards_3, optimal_moves_3 = testbed_karmed(nb_runs, nb_steps, 0.0, 0.1, 10)
 
-@time play_tictactoe(game)
-@time play_tictactoe(game)
+open("data/epsilon.csv", "w") do io
+    write(io, "epsilon-0.1\tepsilon-0.01\tepsilon-0.0\n")
+end
 
-@time play_karmed(karmedbandit, qlearning)
-@time play_karmed(karmedbandit, qlearning)
+open("data/epsilon.csv", "a") do io
+    writedlm(io, hcat(rewards_1, rewards_2, rewards_3))
+end
+
+open("data/optimal.csv", "w") do io
+    write(io, "epsilon-0.1\tepsilon-0.01\tepsilon-0.0\n")
+end
+
+open("data/optimal.csv", "a") do io
+    writedlm(io, hcat(optimal_moves_1, optimal_moves_2, optimal_moves_3))
+end
 
 end # module Uku
