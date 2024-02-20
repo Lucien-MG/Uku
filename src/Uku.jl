@@ -1,6 +1,5 @@
 module Uku
 
-import Base.Threads.@spawn
 using DelimitedFiles
 
 include("environments/KarmedBandit.jl")
@@ -8,54 +7,43 @@ include("environments/KarmedBanditNonStationary.jl")
 
 include("reinforcement-learning/EGreedy.jl")
 
-function play_karmed(karmedbandit, egreedy, nb_steps)
-    all_rewards = Vector{Float64}(undef, nb_steps)
-    optimal_moves = Vector{Float64}(undef, nb_steps)
+function play_env!(env, agent, nb_steps, mean_rewards, optimal_moves)
+    reset(agent)
+    reset(env)
 
     for i=1:nb_steps
-        action = policy(egreedy)
+        action = policy(agent)
+        reward = step(env, action)
 
-        reward = step(karmedbandit, action)
+        learn(agent, action, reward)
 
-        learn(egreedy, action, reward)
-
-        all_rewards[i] = reward
-        optimal_moves[i] = action == argmax(karmedbandit.q_values)
+        mean_rewards[i] += reward
+        optimal_moves[i] += action == argmax(env.q_values)
     end
-    
-    return all_rewards, optimal_moves
 end
 
-function testbed_karmed(nb_runs, nb_steps, epsilon, alpha, nb_actions)
-    karmedbandit = KarmedBanditNonStationary()
-    egreedy = EGreedy(epsilon, alpha, nb_actions)
-
-    rewards, optimal_moves = play_karmed(karmedbandit, egreedy, nb_steps)
+function testbed_karmed(env, agent, nb_runs, nb_steps)
+    mean_rewards = zeros(nb_steps)
+    optimal_moves = zeros(nb_steps)
 
     for i=1:nb_runs
-        karmedbandit = KarmedBandit()
-        egreedy = EGreedy(epsilon, alpha, nb_actions)
-
-        env_rewards, env_optimal_moves = play_karmed(karmedbandit, egreedy, nb_steps)
-        rewards .+= env_rewards
-        optimal_moves .+= env_optimal_moves
+        play_env!(env, agent, nb_steps, mean_rewards, optimal_moves)
     end
 
-    # Mean
-    rewards .= rewards ./ nb_runs
+    mean_rewards .= mean_rewards ./ nb_runs
     optimal_moves .= (optimal_moves .* 100) ./ nb_runs
 
-    return rewards, optimal_moves
+    return mean_rewards, optimal_moves
 end
 
-function run_experiments()
+function run_testbed_experiments()
     nb_runs = 2000
     nb_steps = 10000
 
-    task_1 = Threads.@spawn testbed_karmed(nb_runs, nb_steps, 0.1, 0.1, 10)
-    task_2 = Threads.@spawn testbed_karmed(nb_runs, nb_steps, 0.01, 0.1, 10)
-    task_3 = Threads.@spawn testbed_karmed(nb_runs, nb_steps, 0.0, 0.1, 10)
-    task_4 = Threads.@spawn testbed_karmed(nb_runs, nb_steps, 0.05, 0.1, 10)
+    task_1 = Threads.@spawn testbed_karmed(KarmedBanditNonStationary(10, 1.5, 0.1), EGreedy(0.1, 0.1, 10), nb_runs, nb_steps)
+    task_2 = Threads.@spawn testbed_karmed(KarmedBanditNonStationary(10, 1.5, 0.1), EGreedy(0.01, 0.1, 10), nb_runs, nb_steps)
+    task_3 = Threads.@spawn testbed_karmed(KarmedBanditNonStationary(10, 1.5, 0.1), EGreedy(0.0, 0.1, 10), nb_runs, nb_steps)
+    task_4 = Threads.@spawn testbed_karmed(KarmedBanditNonStationary(10, 1.5, 0.1), EGreedy(0.05, 0.1, 10), nb_runs, nb_steps)
 
     rewards_1, optimal_moves_1 = fetch(task_1)
     rewards_2, optimal_moves_2 = fetch(task_2)
@@ -79,6 +67,6 @@ function run_experiments()
     end
 end
 
-run_experiments()
+run_testbed_experiments()
 
 end # module Uku

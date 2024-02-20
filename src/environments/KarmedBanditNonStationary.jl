@@ -1,13 +1,19 @@
 struct KarmedBanditNonStationary
+    nb_arms
+    initial_variance
+
+    variance
     q_values
-    KarmedBanditNonStationary() = new(randn(10) .* 1.5)
+
+    KarmedBanditNonStationary(nb_arms, initial_variance, variance) = new(nb_arms, initial_variance, variance, randn(nb_arms) .* initial_variance)
 end
 
 function step(karmedbandit:: KarmedBanditNonStationary, action:: Int)
-    random_values = randn(2)
-
-    reward = karmedbandit.q_values[action] + random_values[1]
-    karmedbandit.q_values[action] += random_values[2] * 0.1
-
+    reward = karmedbandit.q_values[action] + randn(1)[1]
+    karmedbandit.q_values .+= randn(karmedbandit.nb_arms) * karmedbandit.variance
     return reward
+end
+
+function reset(karmedbandit:: KarmedBanditNonStationary)
+    karmedbandit.q_values .= randn(karmedbandit.nb_arms) .* karmedbandit.initial_variance
 end
