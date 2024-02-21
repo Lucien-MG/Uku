@@ -40,15 +40,15 @@ function run_testbed_experiments()
     nb_runs = 2000
     nb_steps = 10000
 
-    task_1 = Threads.@spawn testbed_karmed(KarmedBanditNonStationary(10, 1.5, 0.1), EGreedy(0.1, 0.1, 10), nb_runs, nb_steps)
-    task_2 = Threads.@spawn testbed_karmed(KarmedBanditNonStationary(10, 1.5, 0.1), EGreedy(0.01, 0.1, 10), nb_runs, nb_steps)
-    task_3 = Threads.@spawn testbed_karmed(KarmedBanditNonStationary(10, 1.5, 0.1), EGreedy(0.0, 0.1, 10), nb_runs, nb_steps)
-    #task_4 = Threads.@spawn testbed_karmed(KarmedBanditNonStationary(10, 1.5, 0.1), EGreedy(0.05, 0.1, 10), nb_runs, nb_steps)
+    task_1 = Threads.@spawn testbed_karmed(KarmedBanditNonStationary(10, 2, 0.1), EGreedy(0.1, 0.1, 10), nb_runs, nb_steps)
+    task_2 = Threads.@spawn testbed_karmed(KarmedBanditNonStationary(10, 2, 0.1), EGreedy(0.01, 0.1, 10), nb_runs, nb_steps)
+    task_3 = Threads.@spawn testbed_karmed(KarmedBanditNonStationary(10, 2, 0.1), EGreedy(0.0, 0.1, 10), nb_runs, nb_steps)
+    task_4 = Threads.@spawn testbed_karmed(KarmedBanditNonStationary(10, 2, 0.1), EGreedy(0.05, 0.1, 10), nb_runs, nb_steps)
 
     rewards_1, optimal_moves_1 = fetch(task_1)
     rewards_2, optimal_moves_2 = fetch(task_2)
     rewards_3, optimal_moves_3 = fetch(task_3)
-    #rewards_4, optimal_moves_4 = fetch(task_4)
+    rewards_4, optimal_moves_4 = fetch(task_4)
 
     open("data/rewards.csv", "w") do io
         write(io, "epsilon-0.1\tepsilon-0.01\tepsilon-0.0\n")
