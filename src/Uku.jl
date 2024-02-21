@@ -19,8 +19,8 @@ function play_env(env, agent, nb_steps, mean_rewards::Array{Float64}, optimal_mo
 
         learn(agent, action, reward)
 
-        mean_rewards[i] += reward::Float64
-        optimal_moves[i] += (action == argmax(env.q_values))::Bool
+        mean_rewards[i] += reward
+        optimal_moves[i] += (action == argmax(env.expected_rewards))::Bool
     end
 end
 
@@ -70,6 +70,7 @@ function run_testbed_experiments()
 end
 
 run_testbed_experiments()
-# testbed_karmed(KarmedBanditNonStationary(10, 2, 0.1), EGreedy(0.1, 0.1, 10), 10, 10)
+#testbed_karmed(KarmedBanditNonStationary(10, 2, 0.1), EGreedy(0.1, 0.1, 10), 100, 1000)
+#testbed_karmed(KarmedBanditNonStationary(10, 2, 0.1), EGreedy(0.1, 0.1, 10), 100, 1000)
 
 end # module Uku
