@@ -1,5 +1,7 @@
 module Uku
 
+using Profile
+
 using DelimitedFiles
 
 include("environments/KarmedBandit.jl")
@@ -7,7 +9,7 @@ include("environments/KarmedBanditNonStationary.jl")
 
 include("reinforcement-learning/EGreedy.jl")
 
-function play_env(env, agent, nb_steps, mean_rewards, optimal_moves)
+function play_env(env, agent, nb_steps, mean_rewards::Array{Float64}, optimal_moves::Array{Float64})
     reset_agent(agent)
     reset_env(env)
 
@@ -17,8 +19,8 @@ function play_env(env, agent, nb_steps, mean_rewards, optimal_moves)
 
         learn(agent, action, reward)
 
-        mean_rewards[i] += reward
-        optimal_moves[i] += action == argmax(env.q_values)
+        mean_rewards[i] += reward::Float64
+        optimal_moves[i] += (action == argmax(env.q_values))::Bool
     end
 end
 
@@ -68,7 +70,6 @@ function run_testbed_experiments()
 end
 
 run_testbed_experiments()
-
-# testbed_karmed(KarmedBanditNonStationary(10, 1.5, 0.1), EGreedy(0.1, 0.1, 10), 2000, 10000)
+# testbed_karmed(KarmedBanditNonStationary(10, 2, 0.1), EGreedy(0.1, 0.1, 10), 10, 10)
 
 end # module Uku

@@ -9,7 +9,7 @@ struct KarmedBanditNonStationary
 end
 
 function step(karmedbandit:: KarmedBanditNonStationary, action:: Int)
-    reward = karmedbandit.q_values[action] + randn(1)[1]
+    reward = karmedbandit.q_values[action] + randn(Float64, 1)[1]
     karmedbandit.q_values .+= randn(karmedbandit.nb_arms) * karmedbandit.variance
     return reward
 end
