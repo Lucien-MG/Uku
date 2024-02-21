@@ -7,9 +7,9 @@ include("environments/KarmedBanditNonStationary.jl")
 
 include("reinforcement-learning/EGreedy.jl")
 
-function play_env!(env, agent, nb_steps, mean_rewards, optimal_moves)
-    reset(agent)
-    reset(env)
+function play_env(env, agent, nb_steps, mean_rewards, optimal_moves)
+    reset_agent(agent)
+    reset_env(env)
 
     for i=1:nb_steps
         action = policy(agent)
@@ -27,7 +27,7 @@ function testbed_karmed(env, agent, nb_runs, nb_steps)
     optimal_moves = zeros(nb_steps)
 
     for i=1:nb_runs
-        play_env!(env, agent, nb_steps, mean_rewards, optimal_moves)
+        play_env(env, agent, nb_steps, mean_rewards, optimal_moves)
     end
 
     mean_rewards .= mean_rewards ./ nb_runs
@@ -43,12 +43,12 @@ function run_testbed_experiments()
     task_1 = Threads.@spawn testbed_karmed(KarmedBanditNonStationary(10, 1.5, 0.1), EGreedy(0.1, 0.1, 10), nb_runs, nb_steps)
     task_2 = Threads.@spawn testbed_karmed(KarmedBanditNonStationary(10, 1.5, 0.1), EGreedy(0.01, 0.1, 10), nb_runs, nb_steps)
     task_3 = Threads.@spawn testbed_karmed(KarmedBanditNonStationary(10, 1.5, 0.1), EGreedy(0.0, 0.1, 10), nb_runs, nb_steps)
-    task_4 = Threads.@spawn testbed_karmed(KarmedBanditNonStationary(10, 1.5, 0.1), EGreedy(0.05, 0.1, 10), nb_runs, nb_steps)
+    #task_4 = Threads.@spawn testbed_karmed(KarmedBanditNonStationary(10, 1.5, 0.1), EGreedy(0.05, 0.1, 10), nb_runs, nb_steps)
 
     rewards_1, optimal_moves_1 = fetch(task_1)
     rewards_2, optimal_moves_2 = fetch(task_2)
     rewards_3, optimal_moves_3 = fetch(task_3)
-    rewards_4, optimal_moves_4 = fetch(task_4)
+    #rewards_4, optimal_moves_4 = fetch(task_4)
 
     open("data/rewards.csv", "w") do io
         write(io, "epsilon-0.1\tepsilon-0.01\tepsilon-0.0\n")
@@ -68,5 +68,7 @@ function run_testbed_experiments()
 end
 
 run_testbed_experiments()
+
+# testbed_karmed(KarmedBanditNonStationary(10, 1.5, 0.1), EGreedy(0.1, 0.1, 10), 2000, 10000)
 
 end # module Uku

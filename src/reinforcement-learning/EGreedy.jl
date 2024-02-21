@@ -21,6 +21,6 @@ function learn(egreedy:: EGreedy, action:: Int, reward:: Float64)
     egreedy.q_values[action] += (reward - egreedy.q_values[action]) * egreedy.alpha
 end
 
-function reset(egreedy:: EGreedy)
-    egreedy.q_values .= zeros(size(egreedy.q_values))
+function reset_agent(egreedy:: EGreedy)
+    egreedy.q_values .= 0
 end

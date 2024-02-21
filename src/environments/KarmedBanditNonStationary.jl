@@ -14,6 +14,6 @@ function step(karmedbandit:: KarmedBanditNonStationary, action:: Int)
     return reward
 end
 
-function reset(karmedbandit:: KarmedBanditNonStationary)
+function reset_env(karmedbandit:: KarmedBanditNonStationary)
     karmedbandit.q_values .= randn(karmedbandit.nb_arms) .* karmedbandit.initial_variance
 end
