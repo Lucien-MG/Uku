@@ -4,7 +4,9 @@ struct EGreedy
 
     q_values::Array{Float64}
 
-    EGreedy(epsilon, alpha, nb_actions) = new(epsilon, alpha, zeros(nb_actions))
+    function EGreedy(epsilon, alpha, nb_actions, optimistic_initial_value=0)
+        return new(epsilon, alpha, ones(nb_actions) * optimistic_initial_value)
+    end
 end
 
 function policy(egreedy:: EGreedy)
@@ -18,7 +20,7 @@ function policy(egreedy:: EGreedy)
 end
 
 function learn(egreedy::EGreedy, action::Int64, reward::Float64)
-    egreedy.q_values[action] += (reward - egreedy.q_values[action]) * egreedy.alpha
+    egreedy.q_values[action] += egreedy.alpha * (reward - egreedy.q_values[action])
 end
 
 function reset_agent(egreedy:: EGreedy)

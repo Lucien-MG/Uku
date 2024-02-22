@@ -1,7 +1,5 @@
 module Uku
 
-using Profile
-
 using DelimitedFiles
 
 include("environments/KarmedBandit.jl")
@@ -24,7 +22,7 @@ function play_env(env, agent, nb_steps, mean_rewards::Array{Float64}, optimal_mo
     end
 end
 
-function testbed_karmed(env, agent, nb_runs, nb_steps)
+function testbed_karmed(name, env, agent, nb_runs, nb_steps)
     mean_rewards = zeros(nb_steps)
     optimal_moves = zeros(nb_steps)
 
@@ -35,38 +33,62 @@ function testbed_karmed(env, agent, nb_runs, nb_steps)
     mean_rewards .= mean_rewards ./ nb_runs
     optimal_moves .= (optimal_moves .* 100) ./ nb_runs
 
-    return mean_rewards, optimal_moves
+    return name, mean_rewards, optimal_moves
+end
+
+function save_experiences(results_exps)
+    open("data/rewards.csv", "w") do io
+        write(io, join([results_exps[i][1] for i=1:length(results_exps)], "\t") * "\n")
+    end
+
+    open("data/rewards.csv", "a") do io
+        writedlm(io, hcat([results_exps[i][2] for i=1:length(results_exps)]...))
+    end
+
+    open("data/optimal_actions.csv", "w") do io
+        write(io, join([results_exps[i][1] for i=1:length(results_exps)], "\t") * "\n")
+    end
+
+    open("data/optimal_actions.csv", "a") do io
+        writedlm(io, hcat([results_exps[i][3] for i=1:length(results_exps)]...))
+    end
 end
 
 function run_testbed_experiments()
     nb_runs = 2000
-    nb_steps = 10000
+    nb_steps = 1000
 
-    task_1 = Threads.@spawn testbed_karmed(KarmedBanditNonStationary(10, 2, 0.1), EGreedy(0.1, 0.1, 10), nb_runs, nb_steps)
-    task_2 = Threads.@spawn testbed_karmed(KarmedBanditNonStationary(10, 2, 0.1), EGreedy(0.01, 0.1, 10), nb_runs, nb_steps)
-    task_3 = Threads.@spawn testbed_karmed(KarmedBanditNonStationary(10, 2, 0.1), EGreedy(0.0, 0.1, 10), nb_runs, nb_steps)
-    task_4 = Threads.@spawn testbed_karmed(KarmedBanditNonStationary(10, 2, 0.1), EGreedy(0.05, 0.1, 10), nb_runs, nb_steps)
+    running_exps = []
 
-    rewards_1, optimal_moves_1 = fetch(task_1)
-    rewards_2, optimal_moves_2 = fetch(task_2)
-    rewards_3, optimal_moves_3 = fetch(task_3)
-    rewards_4, optimal_moves_4 = fetch(task_4)
+    # experiences = [
+    #     ("epsilon-0.1", KarmedBanditNonStationary(10, 2, 0.1), EGreedy(0.1, 0.1, 10)),
+    #     ("epsilon-0.01", KarmedBanditNonStationary(10, 2, 0.1), EGreedy(0.01, 0.1, 10)),
+    #     ("epsilon-0.0", KarmedBanditNonStationary(10, 2, 0.1), EGreedy(0.0, 0.1, 10)),
+    #     ("epsilon-0.1-optimistic", KarmedBanditNonStationary(10, 2, 0.1), EGreedy(0.1, 0.1, 10, 5)),
+    #     ("epsilon-0.01-optimistic", KarmedBanditNonStationary(10, 2, 0.1), EGreedy(0.1, 0.1, 10, 5))
+    # ]
 
-    open("data/rewards.csv", "w") do io
-        write(io, "epsilon-0.1\tepsilon-0.01\tepsilon-0.0\n")
+    # experiences = [
+    #     ("epsilon-0.1", KarmedBandit(10, 1.5), EGreedy(0.1, 0.1, 10)),
+    #     ("epsilon-0.01", KarmedBandit(10, 1.5), EGreedy(0.01, 0.1, 10)),
+    #     ("epsilon-0.0", KarmedBandit(10, 1.5), EGreedy(0.0, 0.1, 10)),
+    #     ("epsilon-0.1-optimistic", KarmedBandit(10, 1.5), EGreedy(0.1, 0.1, 10, 5)),
+    #     ("epsilon-0.01-optimistic", KarmedBandit(10, 1.5), EGreedy(0.1, 0.1, 10, 5))
+    # ]
+
+    experiences = [
+        ("epsilon-0.1", KarmedBandit(10), EGreedy(0.1, 0.1, 10)),
+        ("epsilon-0.0", KarmedBandit(10), EGreedy(0.0, 0.1, 10, 5)),
+    ]
+
+    Threads.@threads for i in 1:length(experiences)
+        thread = testbed_karmed(experiences[i][1], experiences[i][2], experiences[i][3], nb_runs, nb_steps)
+        push!(running_exps, thread)
     end
 
-    open("data/rewards.csv", "a") do io
-        writedlm(io, hcat(rewards_1, rewards_2, rewards_3))
-    end
+    results_exps = [fetch(running_exps[i]) for i=1:length(running_exps)]
 
-    open("data/optimal_actions.csv", "w") do io
-        write(io, "epsilon-0.1\tepsilon-0.01\tepsilon-0.0\n")
-    end
-
-    open("data/optimal_actions.csv", "a") do io
-        writedlm(io, hcat(optimal_moves_1, optimal_moves_2, optimal_moves_3))
-    end
+    save_experiences(results_exps)
 end
 
 run_testbed_experiments()
