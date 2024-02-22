@@ -5,7 +5,7 @@ struct KarmedBanditNonStationary
     variance::Float64
     expected_rewards::Vector{Float64}
 
-    KarmedBanditNonStationary(nb_arms, initial_variance, variance) = new(nb_arms, initial_variance, variance, randn(Float64, nb_arms) .* initial_variance)
+    KarmedBanditNonStationary(nb_arms, initial_variance=1, variance=0.1) = new(nb_arms, initial_variance, variance, randn(Float64, nb_arms) .* initial_variance)
 end
 
 function step(karmedbandit:: KarmedBanditNonStationary, action::Int64)

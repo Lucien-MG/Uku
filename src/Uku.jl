@@ -6,6 +6,7 @@ include("environments/KarmedBandit.jl")
 include("environments/KarmedBanditNonStationary.jl")
 
 include("reinforcement-learning/EGreedy.jl")
+include("reinforcement-learning/EGreedyUCB.jl")
 
 function play_env(env, agent, nb_steps, mean_rewards::Array{Float64}, optimal_moves::Array{Float64})
     reset_agent(agent)
@@ -56,7 +57,7 @@ end
 
 function run_testbed_experiments()
     nb_runs = 2000
-    nb_steps = 1000
+    nb_steps = 10000
 
     running_exps = []
 
@@ -77,8 +78,10 @@ function run_testbed_experiments()
     # ]
 
     experiences = [
-        ("epsilon-0.1", KarmedBandit(10), EGreedy(0.1, 0.1, 10)),
-        ("epsilon-0.0", KarmedBandit(10), EGreedy(0.0, 0.1, 10, 5)),
+        ("epsilon-0.1", KarmedBanditNonStationary(10), EGreedy(0.1, 0.1, 10)),
+        ("epsilon-0.0-opt", KarmedBanditNonStationary(10), EGreedy(0.0, 0.1, 10, 5)),
+        ("epsilon-0.1-opt", KarmedBanditNonStationary(10), EGreedy(0.1, 0.1, 10, 5)),
+        ("epsilon-ucb", KarmedBanditNonStationary(10), EGreedyUCB(2, 0.1, 10, 0)),
     ]
 
     Threads.@threads for i in 1:length(experiences)
