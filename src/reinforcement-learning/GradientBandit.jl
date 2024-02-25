@@ -19,7 +19,7 @@ function sample(weights::Array{Float64})
     res = zeros(Int64, size(weights)[end])
 
     for i in 1:size(weights)[end]
-        res[i] = rand(1:trunc(Int, weights[i] * 10000))
+        res[i] = rand(1:trunc(Int, weights[i] * 10000 + 1))
     end
 
     return res

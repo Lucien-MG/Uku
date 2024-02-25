@@ -56,34 +56,8 @@ function save_experiences(results_exps)
     end
 end
 
-function run_testbed_experiments()
-    nb_runs = 2000
-    nb_steps = 1000
-
+function run_testbed_experiments(nb_runs, nb_steps, experiences)
     running_exps = []
-
-    # experiences = [
-    #     ("epsilon-0.1", KarmedBanditNonStationary(10, 2, 0.1), EGreedy(0.1, 0.1, 10)),
-    #     ("epsilon-0.01", KarmedBanditNonStationary(10, 2, 0.1), EGreedy(0.01, 0.1, 10)),
-    #     ("epsilon-0.0", KarmedBanditNonStationary(10, 2, 0.1), EGreedy(0.0, 0.1, 10)),
-    #     ("epsilon-0.1-optimistic", KarmedBanditNonStationary(10, 2, 0.1), EGreedy(0.1, 0.1, 10, 5)),
-    #     ("epsilon-0.01-optimistic", KarmedBanditNonStationary(10, 2, 0.1), EGreedy(0.1, 0.1, 10, 5))
-    # ]
-
-    # experiences = [
-    #     ("epsilon-0.1", KarmedBandit(10, 1.5), EGreedy(0.1, 0.1, 10)),
-    #     ("epsilon-0.01", KarmedBandit(10, 1.5), EGreedy(0.01, 0.1, 10)),
-    #     ("epsilon-0.0", KarmedBandit(10, 1.5), EGreedy(0.0, 0.1, 10)),
-    #     ("epsilon-0.1-optimistic", KarmedBandit(10, 1.5), EGreedy(0.1, 0.1, 10, 5)),
-    #     ("epsilon-0.01-optimistic", KarmedBandit(10, 1.5), EGreedy(0.1, 0.1, 10, 5))
-    # ]
-
-    experiences = [
-        ("gradientbandit-0.1", KarmedBandit(10), GradientBandit(0.1, 10)),
-        ("epsilon-0.0-opt", KarmedBandit(10), EGreedy(0.0, 0.1, 10, 5)),
-        ("epsilon-0.1-opt", KarmedBandit(10), EGreedy(0.1, 0.1, 10, 5)),
-        # ("ucb", KarmedBandit(10), UCB(2, 0.1, 10)),
-    ]
 
     Threads.@threads for i in 1:length(experiences)
         thread = testbed_karmed(experiences[i][1], experiences[i][2], experiences[i][3], nb_runs, nb_steps)
@@ -95,7 +69,18 @@ function run_testbed_experiments()
     save_experiences(results_exps)
 end
 
-run_testbed_experiments()
+nb_runs = 2000
+nb_steps = 20000
+
+experiences = [
+        # ("gradientbandit-0.1", KarmedBanditNonStationary(10), GradientBandit(0.01, 10)),
+        ("epsilon-0.0-opt", KarmedBanditNonStationary(10), EGreedy(0.0, 0.1, 10, 4)),
+        ("epsilon-0.1-opt", KarmedBanditNonStationary(10), EGreedy(0.1, 0.1, 10, 4)),
+        ("epsilon-0.08-opt", KarmedBanditNonStationary(10), EGreedy(0.08, 0.1, 10, 4)),
+        # ("ucb", KarmedBandit(10), UCB(2, 0.1, 10)),
+    ]
+
+run_testbed_experiments(nb_runs, nb_steps, experiences)
 #testbed_karmed(KarmedBanditNonStationary(10, 2, 0.1), EGreedy(0.1, 0.1, 10), 100, 1000)
 #testbed_karmed(KarmedBanditNonStationary(10, 2, 0.1), EGreedy(0.1, 0.1, 10), 100, 1000)
 
