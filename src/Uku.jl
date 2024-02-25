@@ -69,6 +69,19 @@ function run_testbed_experiments(nb_runs, nb_steps, experiences)
     save_experiences(results_exps)
 end
 
+function run_parameters_study(nb_runs, nb_steps, env, agent, parameters)
+    running_exps = []
+
+    Threads.@threads for i in 1:length(experiences)
+        thread = testbed_karmed(experiences[i][1], experiences[i][2], experiences[i][3], nb_runs, nb_steps)
+        push!(running_exps, thread)
+    end
+
+    results_exps = [fetch(running_exps[i]) for i=1:length(running_exps)]
+
+    save_experiences(results_exps)
+end
+
 nb_runs = 2000
 nb_steps = 20000
 
