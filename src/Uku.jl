@@ -6,6 +6,7 @@ include("environments/KarmedBandit.jl")
 include("environments/KarmedBanditNonStationary.jl")
 
 include("reinforcement-learning/EGreedy.jl")
+include("reinforcement-learning/GradientBandit.jl")
 include("reinforcement-learning/UCB.jl")
 
 function play_env(env, agent, nb_steps, mean_rewards::Array{Float64}, optimal_moves::Array{Float64})
@@ -78,10 +79,10 @@ function run_testbed_experiments()
     # ]
 
     experiences = [
-        ("epsilon-0.1", KarmedBandit(10), EGreedy(0.1, 0.1, 10)),
-        #("epsilon-0.0-opt", KarmedBanditNonStationary(10), EGreedy(0.0, 0.1, 10, 5)),
-        #("epsilon-0.1-opt", KarmedBanditNonStationary(10), EGreedy(0.1, 0.1, 10, 5)),
-        ("ucb", KarmedBandit(10), UCB(2, 0.1, 10)),
+        ("gradientbandit-0.1", KarmedBandit(10), GradientBandit(0.1, 10)),
+        ("epsilon-0.0-opt", KarmedBandit(10), EGreedy(0.0, 0.1, 10, 5)),
+        ("epsilon-0.1-opt", KarmedBandit(10), EGreedy(0.1, 0.1, 10, 5)),
+        # ("ucb", KarmedBandit(10), UCB(2, 0.1, 10)),
     ]
 
     Threads.@threads for i in 1:length(experiences)
