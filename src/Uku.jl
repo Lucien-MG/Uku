@@ -6,6 +6,7 @@ include("environments/KarmedBandit.jl")
 include("environments/KarmedBanditNonStationary.jl")
 
 include("reinforcement-learning/EGreedy.jl")
+include("reinforcement-learning/EGreedyMean.jl")
 include("reinforcement-learning/GradientBandit.jl")
 include("reinforcement-learning/UCB.jl")
 
@@ -80,18 +81,19 @@ function generate_parameters_study(name, env, agent, parameters)
     return experiences
 end
 
+nb_actions = 10
 nb_runs = 2000
-nb_steps = 1000
+nb_steps = 10000
 
-#experiences = [
-        # ("gradientbandit-0.1", KarmedBanditNonStationary(10), GradientBandit(0.01, 10)),
-#        ("epsilon-0.0-opt", KarmedBandit(10), EGreedy(0.0, 0.1, 10, 4)),
-#        ("epsilon-0.1-opt", KarmedBandit(10), EGreedy(0.1, 0.1, 10, 4)),
-#        ("epsilon-0.08-opt", KarmedBandit(10), EGreedy(0.08, 0.1, 10, 4)),
-        # ("ucb", KarmedBandit(10), UCB(2, 0.1, 10)),
-#    ]
+experiences = [
+        #("gradientbandit-0.1", KarmedBanditNonStationary(10), GradientBandit(0.01, 10)),
+        ("epsilon-0.0", KarmedBanditNonStationary(nb_actions), EGreedyMean(0.0, nb_actions)),
+        ("epsilon-0.1-mean", KarmedBanditNonStationary(nb_actions), EGreedyMean(0.1, nb_actions)),
+        ("epsilon-0.1-alpha", KarmedBanditNonStationary(nb_actions), EGreedy(0.1, 0.15, nb_actions)),
+        #("ucb", KarmedBandit(10), UCB(2, 0.1, 10)),
+]
 
-experiences = generate_parameters_study("epsilon-", KarmedBandit(10), EGreedy, 0:0.1:1)
+# experiences = generate_parameters_study("epsilon-", KarmedBandit(10), EGreedy, 0:0.1:0.5)
 
 run_testbed_experiments(nb_runs, nb_steps, experiences)
 #testbed_karmed(KarmedBanditNonStationary(10, 2, 0.1), EGreedy(0.1, 0.1, 10), 100, 1000)
