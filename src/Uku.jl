@@ -86,17 +86,30 @@ end
 
 nb_actions = 10
 nb_runs = 2000
-nb_steps = 1000
+nb_steps = 10000
 
 experiences = [
-        #("gradientbandit-0.1", KarmedBanditNonStationary(10), GradientBandit(0.01, 10)),
-        ("epsilon-0.0", KarmedBandit(nb_actions), EGreedyMean(0.0, nb_actions)),
+        ("epsilon-0.0", KarmedBandit(nb_actions), EGreedyMean(0, nb_actions)),
+        ("epsilon-0.0-optimistic", KarmedBandit(nb_actions), EGreedy(0, 0.1, nb_actions, 5)),
         ("epsilon-0.1-mean", KarmedBandit(nb_actions), EGreedyMean(0.1, nb_actions)),
         ("epsilon-0.1-alpha", KarmedBandit(nb_actions), EGreedy(0.1, 0.15, nb_actions)),
         ("epsilon-0.01-mean", KarmedBandit(nb_actions), EGreedyMean(0.01, nb_actions)),
         ("epsilon-0.01-alpha", KarmedBandit(nb_actions), EGreedy(0.01, 0.15, nb_actions)),
         ("ucb-c_2-alpha_0.1", KarmedBandit(nb_actions), UCB(2, 0.1, nb_actions)),
         ("ucb-mean-c_2", KarmedBandit(nb_actions), UCBMean(2, nb_actions)),
+        ("gradientbandit-0.1", KarmedBandit(10), GradientBandit(0.01, 10)),
+]
+
+experiences = [
+        ("epsilon-0.0", KarmedBanditNonStationary(nb_actions), EGreedyMean(0, nb_actions)),
+        ("epsilon-0.0-optimistic", KarmedBanditNonStationary(nb_actions), EGreedy(0, 0.1, nb_actions, 5)),
+        ("epsilon-0.1-mean", KarmedBanditNonStationary(nb_actions), EGreedyMean(0.1, nb_actions)),
+        ("epsilon-0.1-alpha", KarmedBanditNonStationary(nb_actions), EGreedy(0.1, 0.15, nb_actions)),
+        ("epsilon-0.01-mean", KarmedBanditNonStationary(nb_actions), EGreedyMean(0.01, nb_actions)),
+        ("epsilon-0.01-alpha", KarmedBanditNonStationary(nb_actions), EGreedy(0.01, 0.15, nb_actions)),
+        ("ucb-c_2-alpha_0.1", KarmedBanditNonStationary(nb_actions), UCB(2, 0.1, nb_actions)),
+        ("ucb-mean-c_2", KarmedBanditNonStationary(nb_actions), UCBMean(2, nb_actions)),
+        ("gradientbandit-0.1", KarmedBanditNonStationary(10), GradientBandit(0.01, 10)),
 ]
 
 # experiences = generate_parameters_study("epsilon-", KarmedBandit(10), EGreedy, 0:0.1:0.5)
