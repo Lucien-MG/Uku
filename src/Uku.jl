@@ -11,6 +11,7 @@ include("reinforcement-learning/EGreedy.jl")
 include("reinforcement-learning/EGreedyMean.jl")
 include("reinforcement-learning/GradientBandit.jl")
 include("reinforcement-learning/UCB.jl")
+include("reinforcement-learning/UCBMean.jl")
 
 function play_env(env, agent, nb_steps, mean_rewards::Array{Float64}, optimal_moves::Array{Float64})
     reset_agent(agent)
@@ -94,7 +95,8 @@ experiences = [
         ("epsilon-0.1-alpha", KarmedBandit(nb_actions), EGreedy(0.1, 0.15, nb_actions)),
         ("epsilon-0.01-mean", KarmedBandit(nb_actions), EGreedyMean(0.01, nb_actions)),
         ("epsilon-0.01-alpha", KarmedBandit(nb_actions), EGreedy(0.01, 0.15, nb_actions)),
-        ("ucb-2", KarmedBandit(10), UCB(2, 0.1, 10)),
+        ("ucb-c_2-alpha_0.1", KarmedBandit(nb_actions), UCB(2, 0.1, nb_actions)),
+        ("ucb-mean-c_2", KarmedBandit(nb_actions), UCBMean(2, nb_actions)),
 ]
 
 # experiences = generate_parameters_study("epsilon-", KarmedBandit(10), EGreedy, 0:0.1:0.5)
