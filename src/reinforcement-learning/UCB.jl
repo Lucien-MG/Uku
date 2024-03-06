@@ -30,4 +30,5 @@ end
 
 function reset_agent(ucb:: UCB)
     ucb.q_values .= zeros(ucb.nb_actions)
+    ucb.action_taken .= zeros(ucb.nb_actions)
 end
