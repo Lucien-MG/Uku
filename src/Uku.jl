@@ -7,11 +7,11 @@ include("environments/KarmedBandit.jl")
 include("environments/KarmedBanditNonStationary.jl")
 
 # Agents
-include("reinforcement-learning/EGreedy.jl")
-include("reinforcement-learning/EGreedyMean.jl")
-include("reinforcement-learning/GradientBandit.jl")
-include("reinforcement-learning/UCB.jl")
-include("reinforcement-learning/UCBMean.jl")
+include("reinforcement-learning/tabular/EGreedy.jl")
+include("reinforcement-learning/tabular/EGreedyMean.jl")
+include("reinforcement-learning/tabular/GradientBandit.jl")
+include("reinforcement-learning/tabular/UCB.jl")
+include("reinforcement-learning/tabular/UCBMean.jl")
 
 function play_env(env, agent, nb_steps, mean_rewards::Array{Float64}, optimal_moves::Array{Float64})
     reset_agent(agent)
