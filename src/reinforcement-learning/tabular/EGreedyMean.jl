@@ -12,7 +12,7 @@ struct EGreedyMean
     end
 end
 
-function policy(egreedy:: EGreedyMean)
+function policy(egreedy:: EGreedyMean, state::Float64)
     if egreedy.epsilon >= rand(Float64, 1)[end]
         action = rand(1:egreedy.nb_actions)[end]
     else

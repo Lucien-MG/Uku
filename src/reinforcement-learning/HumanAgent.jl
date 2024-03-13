@@ -4,11 +4,11 @@ struct HumanAgent
     end
 end
 
-function policy(HumanAgent::HumanAgent)
-    action = readline()
-    println(action)
+function policy(HumanAgent::HumanAgent, state::Float64)
+    println(state)
 
-    return action
+    action = readline()
+    return parse(Int64, action)
 end
 
 function learn(HumanAgent::HumanAgent, action::Int64, reward::Float64)

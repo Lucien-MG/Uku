@@ -11,7 +11,7 @@ struct UCBMean
     end
 end
 
-function policy(ucb:: UCBMean)
+function policy(ucb:: UCBMean, state::Float64)
     if 0 in ucb.action_taken
         action = findfirst(x -> x==0, ucb.action_taken)
     else

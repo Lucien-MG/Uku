@@ -8,9 +8,11 @@ struct KarmedBandit
 end
 
 function step(karmedbandit:: KarmedBandit, action:: Int)
-    return karmedbandit.expected_rewards[action] + randn(1)[1]
+    reward = karmedbandit.expected_rewards[action] + randn(1)[1]
+    return reward, reward
 end
 
 function reset_env(karmedbandit:: KarmedBandit)
     karmedbandit.expected_rewards .= randn(Float64, karmedbandit.nb_arms) .* karmedbandit.initial_variance
+    return 0.0
 end

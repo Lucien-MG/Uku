@@ -25,7 +25,7 @@ function sample(weights::Array{Float64})
     return res
 end
 
-function policy(gb::GradientBandit)
+function policy(gb::GradientBandit, state::Float64)
     gb.pi .= softmax(gb.numerical_preferences)
     action = argmax(sample(gb.pi))
 

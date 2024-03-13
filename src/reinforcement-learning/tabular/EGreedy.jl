@@ -12,7 +12,7 @@ struct EGreedy
     end
 end
 
-function policy(egreedy:: EGreedy)
+function policy(egreedy:: EGreedy, statestate::Float64)
     if egreedy.epsilon >= rand(Float64, 1)[end]
         action = rand(1:size(egreedy.q_values, 1))[end]
     else

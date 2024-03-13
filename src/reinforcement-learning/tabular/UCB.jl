@@ -12,7 +12,7 @@ struct UCB
     end
 end
 
-function policy(ucb:: UCB)
+function policy(ucb:: UCB, state::Float64)
     if 0 in ucb.action_taken
         action = findfirst(x -> x==0, ucb.action_taken)
     else
