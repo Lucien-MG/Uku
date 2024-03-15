@@ -3,7 +3,7 @@ module Uku
 using DelimitedFiles
 
 # Envs
-include("environments/karmedbandit/KarmedBandit.jl")
+include("environments/karmedbandit/KArmedBandit.jl")
 include("environments/karmedbandit/KarmedBanditNonStationary.jl")
 
 # Agents
@@ -13,11 +13,11 @@ include("reinforcement-learning/tabular/GradientBandit.jl")
 include("reinforcement-learning/tabular/UCB.jl")
 include("reinforcement-learning/tabular/UCBMean.jl")
 
-include("reinforcement-learning/HumanAgent.jl")
+include("reinforcement-learning/human/HumanAgent.jl")
 
 function play_env(env, agent, nb_steps, mean_rewards::Array{Float64}, optimal_moves::Array{Float64})
     reset_agent(agent)
-    state = reset_env(env)
+    state = reset(env)
 
     for i=1:nb_steps
         action = policy(agent, state)
@@ -92,15 +92,15 @@ nb_runs = 2000
 nb_steps = 1000
 
 experiences = [
-        ("epsilon-0.0", KarmedBandit(nb_actions), EGreedyMean(0, nb_actions)),
-        ("epsilon-0.0-optimistic", KarmedBandit(nb_actions), EGreedy(0, 0.1, nb_actions, 5)),
-        ("epsilon-0.1-mean", KarmedBandit(nb_actions), EGreedyMean(0.1, nb_actions)),
-        ("epsilon-0.1-alpha", KarmedBandit(nb_actions), EGreedy(0.1, 0.15, nb_actions)),
-        ("epsilon-0.01-mean", KarmedBandit(nb_actions), EGreedyMean(0.01, nb_actions)),
-        ("epsilon-0.01-alpha", KarmedBandit(nb_actions), EGreedy(0.01, 0.15, nb_actions)),
-        ("ucb-c_2-alpha_0.1", KarmedBandit(nb_actions), UCB(2, 0.1, nb_actions)),
-        ("ucb-mean-c_2", KarmedBandit(nb_actions), UCBMean(2, nb_actions)),
-        ("gradientbandit-0.1", KarmedBandit(10), GradientBandit(0.01, 10)),
+        ("epsilon-0.0", KArmedBandit(nb_actions), EGreedyMean(0, nb_actions)),
+        ("epsilon-0.0-optimistic", KArmedBandit(nb_actions), EGreedy(0, 0.1, nb_actions, 5)),
+        ("epsilon-0.1-mean", KArmedBandit(nb_actions), EGreedyMean(0.1, nb_actions)),
+        ("epsilon-0.1-alpha", KArmedBandit(nb_actions), EGreedy(0.1, 0.15, nb_actions)),
+        ("epsilon-0.01-mean", KArmedBandit(nb_actions), EGreedyMean(0.01, nb_actions)),
+        ("epsilon-0.01-alpha", KArmedBandit(nb_actions), EGreedy(0.01, 0.15, nb_actions)),
+        ("ucb-c_2-alpha_0.1", KArmedBandit(nb_actions), UCB(2, 0.1, nb_actions)),
+        ("ucb-mean-c_2", KArmedBandit(nb_actions), UCBMean(2, nb_actions)),
+        ("gradientbandit-0.1", KArmedBandit(nb_actions), GradientBandit(0.01, nb_actions)),
 ]
 
 # experiences = [
