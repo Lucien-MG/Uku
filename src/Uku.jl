@@ -14,31 +14,30 @@ include("reinforcement-learning/tabular/GradientBandit.jl")
 include("reinforcement-learning/tabular/UCB.jl")
 include("reinforcement-learning/tabular/UCBMean.jl")
 
+include("reinforcement-learning/montecarlo/MCFirstVisit.jl")
+
 include("reinforcement-learning/human/HumanAgent.jl")
 
-function play_env(env, agent, nb_steps, mean_rewards::Array{Float64}, optimal_moves::Array{Float64})
-    reset_agent(agent)
+function play_env(env, agent, nb_steps, mean_rewards::Vector{Float64}, optimal_moves::Array{Float64})
+    reset(agent)
     state = reset(env)
 
     finished = false
-    i = 1
 
     while !finished
         action = policy(agent, state)
 
         state, reward, finished = step(env, action)
 
-        learn(agent, action, reward)
+        learn(agent, state, action, reward)
 
-        mean_rewards[i] += reward
+        push!(mean_rewards, reward)
         # optimal_moves[i] += (action == argmax(env.expected_rewards))::Bool
-
-        i += 1
     end
 end
 
 function testbed_karmed(name, env, agent, nb_runs, nb_steps)
-    mean_rewards = zeros(nb_steps)
+    mean_rewards = Vector{Float64}() # zeros(nb_steps)
     optimal_moves = zeros(nb_steps)
 
     for i=1:nb_runs
@@ -94,7 +93,7 @@ function generate_parameters_study(name, env, agent, parameters)
 end
 
 nb_actions = 10
-nb_runs = 2000
+nb_runs = 3
 nb_steps = 1000
 
 # experiences = [
@@ -121,7 +120,7 @@ nb_steps = 1000
 #         ("gradientbandit-0.1", KarmedBanditNonStationary(10), GradientBandit(0.01, 10)),
 # ]
 
-experiences = [("human", Gridworld((4,4)), HumanAgent())]
+experiences = [("human", Gridworld((4,4)), MCFirstVisit(0.1, 0.9, 4))]
 
 # experiences = generate_parameters_study("epsilon-", KarmedBandit(10), EGreedy, 0:0.1:0.5)
 

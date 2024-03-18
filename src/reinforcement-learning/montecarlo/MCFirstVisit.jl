@@ -1,32 +1,56 @@
 struct MCFirstVisit
-    epsilon::Float64
     alpha::Float64
+    gamma::Float64
 
     nb_actions::Int64
-    optimistic_initial_value::Float64
 
+    actions# ::Vector{Vector{Float64}}
+    states# ::Vector{string}
     rewards::Vector{Float64}
-    q_values::Dict{string, Array{Float64}}
 
-    function MCFirstVisit(epsilon, alpha, nb_actions, optimistic_initial_value=0)
-        return new(epsilon, alpha, nb_actions, optimistic_initial_value, Dict())
+    policy# ::Dict{string, Array{Float64}}
+
+    function MCFirstVisit(alpha, gamma, nb_actions)
+        policy = Dict("" => [0.0, 0.0, 0.0, 0.0])
+        return new(alpha, gamma, nb_actions, Vector(), Vector(), Vector{Float64}(), policy)
     end
 end
 
-function policy(egreedy:: MCFirstVisit, state::Float64)
-    if egreedy.epsilon >= rand(Float64, 1)[end]
-        action = rand(1:size(egreedy.q_values, 1))[end]
-    else
-        action = argmax(egreedy.q_values)
+function policy(mc::MCFirstVisit, state::Matrix)
+    hash_state = join(string.(state))
+    if !haskey(mc.policy, hash_state)
+        mc.policy[hash_state] = [1, 1, 1, 1]
+    end
+    q_values = mc.policy[hash_state]
+    actions = [0.0, 0.0, 0.0, 0.0]
+    actions[argmax(q_values)] = 1
+    return vec(actions)
+end
+
+function learn(mc::MCFirstVisit, state::Matrix, action::Vector{Float64}, reward::Float64)
+    hash_state = join(string.(state))
+
+    push!(mc.actions, action)
+    push!(mc.states, hash_state)
+    push!(mc.rewards, reward)
+end
+
+function reset(mc::MCFirstVisit)
+    if length(mc.rewards) == 0
+        return
     end
 
-    return action
-end
+    last_retro_reward = 0
+    mc.rewards[end] = mc.rewards[end] / mc.gamma
 
-function learn(egreedy::MCFirstVisit, action::Int64, reward::Float64)
-    egreedy.q_values[action] += egreedy.alpha * (reward - egreedy.q_values[action])
-end
+    for i = length!(mc.rewards):1
+        state = mc.states[i]
+        action = mc.states[i]
+        reward = mc.rewards[i]
 
-function reset_agent(egreedy::MCFirstVisit)
-    egreedy.q_values .= ones(egreedy.nb_actions) * egreedy.optimistic_initial_value
+        retro_reward = mc.gamma * reward + last_retro_reward
+        mc.policy[action] += mc.alpha * (retro_reward - mc.policy[action])
+
+        last_retro_reward = retro_reward
+    end
 end

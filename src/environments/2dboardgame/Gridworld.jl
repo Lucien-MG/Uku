@@ -14,8 +14,19 @@ end
 function step(gridworld::Gridworld, action::Vector{Float64})
     gridworld.grid[gridworld.player_position[1], gridworld.player_position[2]] = 0
 
-    gridworld.player_position[1] += action[1] - action[2]
-    gridworld.player_position[2] += action[3] - action[4]
+    new_pos_x = gridworld.player_position[1] + action[1] - action[2]
+    new_pos_y = gridworld.player_position[2] + action[3] - action[4]
+
+    if new_pos_x < 1 || new_pos_x > gridworld.size[1]
+        return gridworld.grid, -1.0, false
+    end
+
+    if new_pos_y < 1 || new_pos_y > gridworld.size[2]
+        return gridworld.grid, -1.0, false
+    end
+
+    gridworld.player_position[1] = new_pos_x
+    gridworld.player_position[2] = new_pos_y
 
     gridworld.grid[gridworld.player_position[1], gridworld.player_position[2]] = 1
 
