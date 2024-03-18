@@ -11,7 +11,7 @@ end
 function step(karmedbandit:: KarmedBanditNonStationary, action::Int64)
     reward = karmedbandit.expected_rewards[action] + randn(Float64, 1)[1]
     karmedbandit.expected_rewards .+= randn(Float64, karmedbandit.nb_arms) * karmedbandit.variance
-    return reward, reward
+    return reward, reward, false
 end
 
 function reset_env(karmedbandit:: KarmedBanditNonStationary)

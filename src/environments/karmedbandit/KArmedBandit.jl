@@ -11,7 +11,7 @@ end
 
 function step(karmedbandit::KArmedBandit, action::Int)
     reward = karmedbandit.expected_rewards[action] + randn(1)[end]
-    return reward, reward
+    return reward, reward, false
 end
 
 function reset(karmedbandit::KArmedBandit)::Float64

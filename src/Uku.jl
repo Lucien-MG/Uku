@@ -5,6 +5,7 @@ using DelimitedFiles
 # Envs
 include("environments/karmedbandit/KArmedBandit.jl")
 include("environments/karmedbandit/KarmedBanditNonStationary.jl")
+include("environments/2dboardgame/Gridworld.jl")
 
 # Agents
 include("reinforcement-learning/tabular/EGreedy.jl")
@@ -19,15 +20,20 @@ function play_env(env, agent, nb_steps, mean_rewards::Array{Float64}, optimal_mo
     reset_agent(agent)
     state = reset(env)
 
-    for i=1:nb_steps
+    finished = false
+    i = 1
+
+    while !finished
         action = policy(agent, state)
 
-        state, reward = step(env, action)
+        state, reward, finished = step(env, action)
 
         learn(agent, action, reward)
 
         mean_rewards[i] += reward
-        optimal_moves[i] += (action == argmax(env.expected_rewards))::Bool
+        # optimal_moves[i] += (action == argmax(env.expected_rewards))::Bool
+
+        i += 1
     end
 end
 
@@ -91,17 +97,17 @@ nb_actions = 10
 nb_runs = 2000
 nb_steps = 1000
 
-experiences = [
-        ("epsilon-0.0", KArmedBandit(nb_actions), EGreedyMean(0, nb_actions)),
-        ("epsilon-0.0-optimistic", KArmedBandit(nb_actions), EGreedy(0, 0.1, nb_actions, 5)),
-        ("epsilon-0.1-mean", KArmedBandit(nb_actions), EGreedyMean(0.1, nb_actions)),
-        ("epsilon-0.1-alpha", KArmedBandit(nb_actions), EGreedy(0.1, 0.15, nb_actions)),
-        ("epsilon-0.01-mean", KArmedBandit(nb_actions), EGreedyMean(0.01, nb_actions)),
-        ("epsilon-0.01-alpha", KArmedBandit(nb_actions), EGreedy(0.01, 0.15, nb_actions)),
-        ("ucb-c_2-alpha_0.1", KArmedBandit(nb_actions), UCB(2, 0.1, nb_actions)),
-        ("ucb-mean-c_2", KArmedBandit(nb_actions), UCBMean(2, nb_actions)),
-        ("gradientbandit-0.1", KArmedBandit(nb_actions), GradientBandit(0.01, nb_actions)),
-]
+# experiences = [
+#         ("epsilon-0.0", KArmedBandit(nb_actions), EGreedyMean(0, nb_actions)),
+#         ("epsilon-0.0-optimistic", KArmedBandit(nb_actions), EGreedy(0, 0.1, nb_actions, 5)),
+#         ("epsilon-0.1-mean", KArmedBandit(nb_actions), EGreedyMean(0.1, nb_actions)),
+#         ("epsilon-0.1-alpha", KArmedBandit(nb_actions), EGreedy(0.1, 0.15, nb_actions)),
+#         ("epsilon-0.01-mean", KArmedBandit(nb_actions), EGreedyMean(0.01, nb_actions)),
+#         ("epsilon-0.01-alpha", KArmedBandit(nb_actions), EGreedy(0.01, 0.15, nb_actions)),
+#         ("ucb-c_2-alpha_0.1", KArmedBandit(nb_actions), UCB(2, 0.1, nb_actions)),
+#         ("ucb-mean-c_2", KArmedBandit(nb_actions), UCBMean(2, nb_actions)),
+#         ("gradientbandit-0.1", KArmedBandit(nb_actions), GradientBandit(0.01, nb_actions)),
+# ]
 
 # experiences = [
 #         ("epsilon-0.0", KarmedBanditNonStationary(nb_actions), EGreedyMean(0, nb_actions)),
@@ -115,7 +121,7 @@ experiences = [
 #         ("gradientbandit-0.1", KarmedBanditNonStationary(10), GradientBandit(0.01, 10)),
 # ]
 
-# experiences = [("human", KarmedBandit(nb_actions), HumanAgent())]
+experiences = [("human", Gridworld((4,4)), HumanAgent())]
 
 # experiences = generate_parameters_study("epsilon-", KarmedBandit(10), EGreedy, 0:0.1:0.5)
 
