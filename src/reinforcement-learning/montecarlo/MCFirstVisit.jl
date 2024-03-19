@@ -4,7 +4,7 @@ struct MCFirstVisit
 
     nb_actions::Int64
 
-    actions# ::Vector{Vector{Float64}}
+    actions::Vector{Vector{Float64}}
     states# ::Vector{string}
     rewards::Vector{Float64}
 
@@ -41,16 +41,22 @@ function reset(mc::MCFirstVisit)
     end
 
     last_retro_reward = 0
-    mc.rewards[end] = mc.rewards[end] / mc.gamma
+    println(length(mc.rewards))
 
-    for i = length!(mc.rewards):1
+    for i in length(mc.rewards):-1:1
         state = mc.states[i]
-        action = mc.states[i]
+        action = argmax(mc.actions[i])
         reward = mc.rewards[i]
 
-        retro_reward = mc.gamma * reward + last_retro_reward
-        mc.policy[action] += mc.alpha * (retro_reward - mc.policy[action])
+        retro_reward = reward + mc.gamma * last_retro_reward
+        mc.policy[state][action] += mc.alpha * (retro_reward - mc.policy[state][action])
+
+        println(mc.policy[state][action])
 
         last_retro_reward = retro_reward
     end
+
+    empty!(mc.actions)
+    empty!(mc.states)
+    empty!(mc.rewards)
 end

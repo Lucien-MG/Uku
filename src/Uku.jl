@@ -23,8 +23,9 @@ function play_env(env, agent, nb_steps, mean_rewards::Vector{Float64}, optimal_m
     state = reset(env)
 
     finished = false
+    nb_step = 1
 
-    while !finished
+    while !finished && nb_step < nb_steps
         action = policy(agent, state)
 
         state, reward, finished = step(env, action)
@@ -32,7 +33,8 @@ function play_env(env, agent, nb_steps, mean_rewards::Vector{Float64}, optimal_m
         learn(agent, state, action, reward)
 
         push!(mean_rewards, reward)
-        # optimal_moves[i] += (action == argmax(env.expected_rewards))::Bool
+
+        nb_step += 1
     end
 end
 
@@ -93,8 +95,8 @@ function generate_parameters_study(name, env, agent, parameters)
 end
 
 nb_actions = 10
-nb_runs = 3
-nb_steps = 1000
+nb_runs = 10000
+nb_steps = 50
 
 # experiences = [
 #         ("epsilon-0.0", KArmedBandit(nb_actions), EGreedyMean(0, nb_actions)),
