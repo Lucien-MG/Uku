@@ -14,7 +14,7 @@ include("reinforcement-learning/tabular/GradientBandit.jl")
 include("reinforcement-learning/tabular/UCB.jl")
 include("reinforcement-learning/tabular/UCBMean.jl")
 
-include("reinforcement-learning/montecarlo/MCFirstVisit.jl")
+include("reinforcement-learning/sarsa/Sarsa.jl")
 
 include("reinforcement-learning/human/HumanAgent.jl")
 
@@ -31,6 +31,11 @@ function play_env(env, agent, nb_steps, mean_rewards::Vector{Float64}, optimal_m
         state, reward, finished = step(env, action)
 
         learn(agent, state, action, reward)
+
+        if reward == 1
+            println(nb_step)
+            println("win")
+        end
 
         push!(mean_rewards, reward)
 
@@ -95,8 +100,8 @@ function generate_parameters_study(name, env, agent, parameters)
 end
 
 nb_actions = 10
-nb_runs = 10000
-nb_steps = 50
+nb_runs = 100000
+nb_steps = 20
 
 # experiences = [
 #         ("epsilon-0.0", KArmedBandit(nb_actions), EGreedyMean(0, nb_actions)),
@@ -122,7 +127,7 @@ nb_steps = 50
 #         ("gradientbandit-0.1", KarmedBanditNonStationary(10), GradientBandit(0.01, 10)),
 # ]
 
-experiences = [("human", Gridworld((4,4)), MCFirstVisit(0.1, 0.9, 4))]
+experiences = [("human", Gridworld((4,4)), Sarsa(0.1, 0.1, 0.9, 4))]
 
 # experiences = generate_parameters_study("epsilon-", KarmedBandit(10), EGreedy, 0:0.1:0.5)
 
