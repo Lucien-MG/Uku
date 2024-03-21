@@ -18,43 +18,39 @@ include("reinforcement-learning/sarsa/Sarsa.jl")
 
 include("reinforcement-learning/human/HumanAgent.jl")
 
-function play_env(env, agent, nb_steps, mean_rewards::Vector{Float64}, optimal_moves::Array{Float64})
+function play_env(env, agent)
     reset(agent)
     state = reset(env)
 
     finished = false
-    nb_step = 1
+    index_step = 1
 
-    while !finished && nb_step < nb_steps
+    while !finished
         action = policy(agent, state)
 
         state, reward, finished = step(env, action)
 
         learn(agent, state, action, reward)
 
-        if reward == 1
-            println(nb_step)
-            println("win")
-        end
-
-        push!(mean_rewards, reward)
-
-        nb_step += 1
+        index_step += 1
     end
+
+    return index_step
 end
 
 function testbed_karmed(name, env, agent, nb_runs, nb_steps)
-    mean_rewards = Vector{Float64}() # zeros(nb_steps)
+    nb_steps_by_episode = zeros(nb_runs)
     optimal_moves = zeros(nb_steps)
 
     for i=1:nb_runs
-        play_env(env, agent, nb_steps, mean_rewards, optimal_moves)
+        steps_played = play_env(env, agent)
+
+        nb_steps_by_episode[i] = steps_played
     end
 
-    mean_rewards .= mean_rewards ./ nb_runs
     optimal_moves .= (optimal_moves .* 100) ./ nb_runs
 
-    return name, mean_rewards, optimal_moves
+    return name, nb_steps_by_episode, optimal_moves
 end
 
 function save_experiences(results_exps)
@@ -100,8 +96,8 @@ function generate_parameters_study(name, env, agent, parameters)
 end
 
 nb_actions = 10
-nb_runs = 100000
-nb_steps = 20
+nb_runs = 100
+nb_steps = 50
 
 # experiences = [
 #         ("epsilon-0.0", KArmedBandit(nb_actions), EGreedyMean(0, nb_actions)),

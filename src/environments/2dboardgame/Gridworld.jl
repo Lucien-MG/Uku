@@ -31,7 +31,12 @@ function step(gridworld::Gridworld, action::Vector{Float64})
     gridworld.grid[gridworld.player_position[1], gridworld.player_position[2]] = 1
 
     finished = gridworld.grid[end, end] == 1
-    reward::Float64 = finished * 2 - 1
+
+    if finished
+        reward = 1.0
+    else
+        reward = -0.1
+    end
 
     return gridworld.grid, reward, finished
 end
