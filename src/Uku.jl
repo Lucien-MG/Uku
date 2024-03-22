@@ -20,27 +20,30 @@ include("reinforcement-learning/human/HumanAgent.jl")
 
 function play_env(env, agent)
     reset(agent)
-    state = reset(env)
 
     finished = false
     index_step = 1
+
+    state = reset(env)
+    previous_state = state
 
     while !finished
         action = policy(agent, state)
 
         state, reward, finished = step(env, action)
 
-        learn(agent, state, action, reward)
+        learn(agent, previous_state, state, action, reward)
 
+        previous_state = state
         index_step += 1
     end
 
     return index_step
 end
 
-function testbed_karmed(name, env, agent, nb_runs, nb_steps)
+function run_episodes(name, env, agent, nb_runs)
     nb_steps_by_episode = zeros(nb_runs)
-    optimal_moves = zeros(nb_steps)
+    optimal_moves = zeros(nb_runs)
 
     for i=1:nb_runs
         steps_played = play_env(env, agent)
@@ -71,33 +74,36 @@ function save_experiences(results_exps)
     end
 end
 
-function run_testbed_experiments(nb_runs, nb_steps, experiences)
-    running_exps = []
+function run_experiments(nb_runs, experiences)
+    results_exps = []
 
-    Threads.@threads for i in 1:length(experiences)
-        thread = testbed_karmed(experiences[i][1], experiences[i][2], experiences[i][3], nb_runs, nb_steps)
-        push!(running_exps, thread)
+    Threads.@threads for exp in experiences
+        # Experience title
+        println(Threads.threadid(), ": ", exp[1], " - running")
+    
+        # Run experiences
+        @time results = run_episodes(exp[1], exp[2], exp[3], nb_runs)
+
+        # Store experiences's results
+        push!(results_exps, results)
     end
 
-    results_exps = [fetch(running_exps[i]) for i=1:length(running_exps)]
-
-    save_experiences(results_exps)
+    return results_exps
 end
 
-function generate_parameters_study(name, env, agent, parameters)
-    experiences = []
+# function generate_parameters_study(name, env, agent, parameters)
+#     experiences = []
 
-    for i in 1:length(parameters)
-        exp = (name * string(parameters[i]), KarmedBandit(10), agent(parameters[i], 0.1, 10, 4))
-        push!(experiences, exp)
-    end
+#     for i in 1:length(parameters)
+#         exp = (name * string(parameters[i]), KarmedBandit(10), agent(parameters[i], 0.1, 10, 4))
+#         # push!(experiences, exp)
+#     end
 
-    return experiences
-end
+#     return experiences
+# end
 
 nb_actions = 10
-nb_runs = 100
-nb_steps = 50
+nb_runs = 200
 
 # experiences = [
 #         ("epsilon-0.0", KArmedBandit(nb_actions), EGreedyMean(0, nb_actions)),
@@ -123,10 +129,15 @@ nb_steps = 50
 #         ("gradientbandit-0.1", KarmedBanditNonStationary(10), GradientBandit(0.01, 10)),
 # ]
 
-experiences = [("human", Gridworld((4,4)), Sarsa(0.1, 0.1, 0.9, 4))]
+experiences = [
+    ("Sarsa-a", Gridworld((4,4)), Sarsa(0.1, 0.5, 0.9, 4)),
+    # ("Human", Gridworld((4,4)), HumanAgent()),
+]
 
 # experiences = generate_parameters_study("epsilon-", KarmedBandit(10), EGreedy, 0:0.1:0.5)
 
-run_testbed_experiments(nb_runs, nb_steps, experiences)
+results_exps = run_experiments(nb_runs, experiences)
+
+save_experiences(results_exps)
 
 end # module Uku
