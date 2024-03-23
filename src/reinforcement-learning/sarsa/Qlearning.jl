@@ -1,62 +1,49 @@
-struct Sarsa
+mutable struct Qlearning
+    epsilon::Float64
     alpha::Float64
     gamma::Float64
 
     nb_actions::Int64
 
-    actions::Vector{Vector{Float64}}
-    states# ::Vector{string}
-    rewards::Vector{Float64}
+    policy::Dict{String, Array{Float64}}
 
-    policy# ::Dict{string, Array{Float64}}
-
-    function MCFirstVisit(alpha, gamma, nb_actions)
-        policy = Dict("" => [0.0, 0.0, 0.0, 0.0])
-        return new(alpha, gamma, nb_actions, Vector(), Vector(), Vector{Float64}(), policy)
+    function Qlearning(epsilon, alpha, gamma, nb_actions)
+        return new(epsilon, alpha, gamma, nb_actions, Dict())
     end
 end
 
-function policy(mc::MCFirstVisit, state::Matrix)
-    hash_state = join(string.(state))
-    if !haskey(mc.policy, hash_state)
-        mc.policy[hash_state] = [1, 1, 1, 1]
-    end
-    q_values = mc.policy[hash_state]
-    actions = [0.0, 0.0, 0.0, 0.0]
-    actions[argmax(q_values)] = 1
-    return vec(actions)
-end
-
-function learn(mc::MCFirstVisit, state::Matrix, action::Vector{Float64}, reward::Float64)
+function policy(qlearning::Qlearning, state::Matrix, intern=false)
     hash_state = join(string.(state))
 
-    push!(mc.actions, action)
-    push!(mc.states, hash_state)
-    push!(mc.rewards, reward)
+    if !haskey(qlearning.policy, hash_state)
+        qlearning.policy[hash_state] = zeros(Float64, qlearning.nb_actions)
+    end
+
+    if rand(0.:0.001:1., 1, 1)[end] <= qlearning.epsilon
+        action = rand(1:qlearning.nb_actions)[end]
+    else
+        action = argmax(qlearning.policy[hash_state])
+    end
+
+    actions = [0., 0., 0., 0.]
+    actions[action] = 1.0
+
+    return actions
 end
 
-function reset(mc::MCFirstVisit)
-    if length(mc.rewards) == 0
-        return
+function learn(qlearning::Qlearning, state::Matrix, state_prime::Matrix, action::Array{Float64}, reward::Float64)
+    hash_state = join(string.(state))
+    hash_state_prime = join(string.(state_prime))
+
+    if !haskey(qlearning.policy, hash_state_prime)
+        qlearning.policy[hash_state_prime] = zeros(Float64, qlearning.nb_actions)
     end
 
-    last_retro_reward = 0
-    println(length(mc.rewards))
+    action_index = argmax(action)
+    action_index_prime = argmax(qlearning.policy[hash_state_prime])
 
-    for i in length(mc.rewards):-1:1
-        state = mc.states[i]
-        action = argmax(mc.actions[i])
-        reward = mc.rewards[i]
+    qlearning.policy[hash_state][action_index] += qlearning.alpha * (reward + (qlearning.gamma * qlearning.policy[hash_state_prime][action_index_prime]) - qlearning.policy[hash_state][action_index])
+end
 
-        retro_reward = reward + mc.gamma * last_retro_reward
-        mc.policy[state][action] += mc.alpha * (retro_reward - mc.policy[state][action])
-
-        println(mc.policy[state][action])
-
-        last_retro_reward = retro_reward
-    end
-
-    empty!(mc.actions)
-    empty!(mc.states)
-    empty!(mc.rewards)
+function reset(qlearning::Qlearning)
 end

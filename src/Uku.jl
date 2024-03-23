@@ -15,6 +15,7 @@ include("reinforcement-learning/tabular/UCB.jl")
 include("reinforcement-learning/tabular/UCBMean.jl")
 
 include("reinforcement-learning/sarsa/Sarsa.jl")
+include("reinforcement-learning/sarsa/Qlearning.jl")
 
 include("reinforcement-learning/human/HumanAgent.jl")
 
@@ -25,7 +26,7 @@ function play_env(env, agent)
     index_step = 1
 
     state = reset(env)
-    previous_state = state
+    previous_state = copy(state)
 
     while !finished
         action = policy(agent, state)
@@ -34,7 +35,7 @@ function play_env(env, agent)
 
         learn(agent, previous_state, state, action, reward)
 
-        previous_state = state
+        previous_state .= state
         index_step += 1
     end
 
@@ -103,7 +104,7 @@ end
 # end
 
 nb_actions = 10
-nb_runs = 200
+nb_runs = 100
 
 # experiences = [
 #         ("epsilon-0.0", KArmedBandit(nb_actions), EGreedyMean(0, nb_actions)),
@@ -130,7 +131,7 @@ nb_runs = 200
 # ]
 
 experiences = [
-    ("Sarsa-a", Gridworld((4,4)), Sarsa(0.1, 0.5, 0.9, 4)),
+    ("Qlearning", Gridworld((4,4)), Sarsa(0.1, 0.5, 0.9, 4)),
     # ("Human", Gridworld((4,4)), HumanAgent()),
 ]
 
