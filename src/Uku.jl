@@ -20,13 +20,13 @@ include("reinforcement-learning/sarsa/Qlearning.jl")
 include("reinforcement-learning/human/HumanAgent.jl")
 
 function play_env(env, agent)
-    reset(agent)
-
-    finished = false
     index_step = 1
+    index_reward = 0
 
     state = reset(env)
     previous_state = copy(state)
+
+    finished = false
 
     while !finished
         action = policy(agent, state)
@@ -36,25 +36,26 @@ function play_env(env, agent)
         learn(agent, previous_state, state, action, reward)
 
         previous_state .= state
+
+        index_reward += reward
         index_step += 1
     end
 
-    return index_step
+    return index_reward, index_step
 end
 
 function run_episodes(name, env, agent, nb_runs)
+    reward_by_episode = zeros(nb_runs)
     nb_steps_by_episode = zeros(nb_runs)
-    optimal_moves = zeros(nb_runs)
 
     for i=1:nb_runs
-        steps_played = play_env(env, agent)
+        episode_reward, steps_played = play_env(env, agent)
 
+        reward_by_episode[i] = episode_reward
         nb_steps_by_episode[i] = steps_played
     end
 
-    optimal_moves .= (optimal_moves .* 100) ./ nb_runs
-
-    return name, nb_steps_by_episode, optimal_moves
+    return name, reward_by_episode, nb_steps_by_episode
 end
 
 function save_experiences(results_exps)
@@ -66,11 +67,11 @@ function save_experiences(results_exps)
         writedlm(io, hcat([results_exps[i][2] for i=1:length(results_exps)]...))
     end
 
-    open("data/optimal_actions.csv", "w") do io
+    open("data/steps_by_episode.csv", "w") do io
         write(io, join([results_exps[i][1] for i=1:length(results_exps)], "\t") * "\n")
     end
 
-    open("data/optimal_actions.csv", "a") do io
+    open("data/steps_by_episode.csv", "a") do io
         writedlm(io, hcat([results_exps[i][3] for i=1:length(results_exps)]...))
     end
 end
@@ -104,7 +105,7 @@ end
 # end
 
 nb_actions = 10
-nb_runs = 100
+nb_runs = 500
 
 # experiences = [
 #         ("epsilon-0.0", KArmedBandit(nb_actions), EGreedyMean(0, nb_actions)),
@@ -131,7 +132,7 @@ nb_runs = 100
 # ]
 
 experiences = [
-    ("Qlearning", Gridworld((4,4)), Sarsa(0.1, 0.5, 0.9, 4)),
+    ("Qlearning", Gridworld((6,6)), Qlearning(0.1, 0.5, 0.9, 4)),
     # ("Human", Gridworld((4,4)), HumanAgent()),
 ]
 

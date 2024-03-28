@@ -19,7 +19,7 @@ function policy(sarsa::Sarsa, state::Matrix, intern=false)
         sarsa.policy[hash_state] = zeros(Float64, sarsa.nb_actions)
     end
 
-    if rand(0.:0.001:1., 1, 1)[end] <= sarsa.epsilon
+    if rand() <= sarsa.epsilon
         action = rand(1:sarsa.nb_actions)[end]
     else
         action = argmax(sarsa.policy[hash_state])

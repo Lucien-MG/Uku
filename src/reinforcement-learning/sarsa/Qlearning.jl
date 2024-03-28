@@ -12,20 +12,17 @@ mutable struct Qlearning
     end
 end
 
-function policy(qlearning::Qlearning, state::Matrix, intern=false)
+function policy(qlearning::Qlearning, state::Matrix)
     hash_state = join(string.(state))
 
-    if !haskey(qlearning.policy, hash_state)
-        qlearning.policy[hash_state] = zeros(Float64, qlearning.nb_actions)
-    end
-
-    if rand(0.:0.001:1., 1, 1)[end] <= qlearning.epsilon
-        action = rand(1:qlearning.nb_actions)[end]
+    if rand() <= qlearning.epsilon
+        action = rand(1:qlearning.nb_actions)
     else
-        action = argmax(qlearning.policy[hash_state])
+        q_values_state = get(qlearning.policy, hash_state, zeros(Float64, qlearning.nb_actions))
+        action = argmax(q_values_state)
     end
 
-    actions = [0., 0., 0., 0.]
+    actions = zeros(Float64, qlearning.nb_actions)
     actions[action] = 1.0
 
     return actions
@@ -35,6 +32,10 @@ function learn(qlearning::Qlearning, state::Matrix, state_prime::Matrix, action:
     hash_state = join(string.(state))
     hash_state_prime = join(string.(state_prime))
 
+    if !haskey(qlearning.policy, hash_state)
+        qlearning.policy[hash_state] = zeros(Float64, qlearning.nb_actions)
+    end
+
     if !haskey(qlearning.policy, hash_state_prime)
         qlearning.policy[hash_state_prime] = zeros(Float64, qlearning.nb_actions)
     end
@@ -43,7 +44,4 @@ function learn(qlearning::Qlearning, state::Matrix, state_prime::Matrix, action:
     action_index_prime = argmax(qlearning.policy[hash_state_prime])
 
     qlearning.policy[hash_state][action_index] += qlearning.alpha * (reward + (qlearning.gamma * qlearning.policy[hash_state_prime][action_index_prime]) - qlearning.policy[hash_state][action_index])
-end
-
-function reset(qlearning::Qlearning)
 end
