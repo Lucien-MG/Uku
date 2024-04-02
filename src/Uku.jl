@@ -5,9 +5,11 @@ using DelimitedFiles
 # Envs
 include("environments/karmedbandit/KArmedBandit.jl")
 include("environments/karmedbandit/KarmedBanditNonStationary.jl")
+
 include("environments/toytext/Gridworld.jl")
 include("environments/toytext/CliffWalking.jl")
 include("environments/toytext/Blackjack.jl")
+include("environments/toytext/WindyGridworld.jl")
 
 # Agents
 include("reinforcement-learning/tabular/EGreedy.jl")
@@ -130,10 +132,10 @@ nb_runs = 300
 # ]
 
 experiences = [
-    ("Qlearning-Grid", Gridworld((4,4)), Qlearning(0.1, 0.5, 0.9, 4)),
+    #("Qlearning-Grid", WindyGridworld(), Qlearning(0.1, 0.5, 0.9, 4)),
     #("Qlearning-Cliff", CliffWalking(), Qlearning(0.1, 0.5, 0.9, 4)),
     #("Qlearning-Blackjack", Blackjack(), Qlearning(0.1, 0.5, 0.9, 4)),
-    #("Human", Blackjack(), HumanAgent()),
+    ("Human", WindyGridworld(), HumanAgent()),
 ]
 
 # experiences = generate_parameters_study("epsilon-", KarmedBandit(10), EGreedy, 0:0.1:0.5)
