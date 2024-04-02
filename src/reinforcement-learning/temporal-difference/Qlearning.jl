@@ -1,4 +1,4 @@
-mutable struct Qlearning
+struct Qlearning
     epsilon::Float64
     alpha::Float64
     gamma::Float64
@@ -13,13 +13,16 @@ mutable struct Qlearning
 end
 
 function policy(qlearning::Qlearning, state::Matrix)
-    hash_state = join(string.(state))
+    hash_state = string(state)
+
+    if !haskey(qlearning.policy, hash_state)
+        qlearning.policy[hash_state] = zeros(Float64, qlearning.nb_actions)
+    end
 
     if rand() <= qlearning.epsilon
         action = rand(1:qlearning.nb_actions)
     else
-        q_values_state = get(qlearning.policy, hash_state, zeros(Float64, qlearning.nb_actions))
-        action = argmax(q_values_state)
+        action = argmax(qlearning.policy[hash_state])
     end
 
     actions = zeros(Float64, qlearning.nb_actions)
@@ -29,12 +32,8 @@ function policy(qlearning::Qlearning, state::Matrix)
 end
 
 function learn(qlearning::Qlearning, state::Matrix, state_prime::Matrix, action::Array{Float64}, reward::Float64)
-    hash_state = join(string.(state))
-    hash_state_prime = join(string.(state_prime))
-
-    if !haskey(qlearning.policy, hash_state)
-        qlearning.policy[hash_state] = zeros(Float64, qlearning.nb_actions)
-    end
+    hash_state = string(state)
+    hash_state_prime = string(state_prime)
 
     if !haskey(qlearning.policy, hash_state_prime)
         qlearning.policy[hash_state_prime] = zeros(Float64, qlearning.nb_actions)
@@ -43,5 +42,6 @@ function learn(qlearning::Qlearning, state::Matrix, state_prime::Matrix, action:
     action_index = argmax(action)
     action_index_prime = argmax(qlearning.policy[hash_state_prime])
 
-    qlearning.policy[hash_state][action_index] += qlearning.alpha * (reward + (qlearning.gamma * qlearning.policy[hash_state_prime][action_index_prime]) - qlearning.policy[hash_state][action_index])
+    cumulative_reward = reward + (qlearning.gamma * qlearning.policy[hash_state_prime][action_index_prime])
+    qlearning.policy[hash_state][action_index] += qlearning.alpha * (cumulative_reward - qlearning.policy[hash_state][action_index])
 end

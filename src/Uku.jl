@@ -5,7 +5,9 @@ using DelimitedFiles
 # Envs
 include("environments/karmedbandit/KArmedBandit.jl")
 include("environments/karmedbandit/KarmedBanditNonStationary.jl")
-include("environments/2dboardgame/Gridworld.jl")
+include("environments/toytext/Gridworld.jl")
+include("environments/toytext/CliffWalking.jl")
+include("environments/toytext/Blackjack.jl")
 
 # Agents
 include("reinforcement-learning/tabular/EGreedy.jl")
@@ -14,19 +16,16 @@ include("reinforcement-learning/tabular/GradientBandit.jl")
 include("reinforcement-learning/tabular/UCB.jl")
 include("reinforcement-learning/tabular/UCBMean.jl")
 
-include("reinforcement-learning/sarsa/Sarsa.jl")
-include("reinforcement-learning/sarsa/Qlearning.jl")
+include("reinforcement-learning/temporal-difference/Sarsa.jl")
+include("reinforcement-learning/temporal-difference/Qlearning.jl")
 
 include("reinforcement-learning/human/HumanAgent.jl")
 
 function play_env(env, agent)
-    index_step = 1
-    index_reward = 0
+    index_reward, index_step = 0, 1
 
-    state = reset(env)
+    state, finished = reset(env), false
     previous_state = copy(state)
-
-    finished = false
 
     while !finished
         action = policy(agent, state)
@@ -48,7 +47,7 @@ function run_episodes(name, env, agent, nb_runs)
     reward_by_episode = zeros(nb_runs)
     nb_steps_by_episode = zeros(nb_runs)
 
-    for i=1:nb_runs
+    for i in 1:nb_runs
         episode_reward, steps_played = play_env(env, agent)
 
         reward_by_episode[i] = episode_reward
@@ -104,8 +103,7 @@ end
 #     return experiences
 # end
 
-nb_actions = 10
-nb_runs = 500
+nb_runs = 300
 
 # experiences = [
 #         ("epsilon-0.0", KArmedBandit(nb_actions), EGreedyMean(0, nb_actions)),
@@ -132,8 +130,10 @@ nb_runs = 500
 # ]
 
 experiences = [
-    ("Qlearning", Gridworld((6,6)), Qlearning(0.1, 0.5, 0.9, 4)),
-    # ("Human", Gridworld((4,4)), HumanAgent()),
+    ("Qlearning-Grid", Gridworld((4,4)), Qlearning(0.1, 0.5, 0.9, 4)),
+    #("Qlearning-Cliff", CliffWalking(), Qlearning(0.1, 0.5, 0.9, 4)),
+    #("Qlearning-Blackjack", Blackjack(), Qlearning(0.1, 0.5, 0.9, 4)),
+    #("Human", Blackjack(), HumanAgent()),
 ]
 
 # experiences = generate_parameters_study("epsilon-", KarmedBandit(10), EGreedy, 0:0.1:0.5)
