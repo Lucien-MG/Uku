@@ -82,10 +82,10 @@ function run_experiments(nb_runs, experiences)
 
     Threads.@threads for exp in experiences
         # Experience title
-        println(Threads.threadid(), ": ", exp[1], " - running")
+        println(Threads.threadid(), ": ", exp["name"], " - running")
     
         # Run experiences
-        @time results = run_episodes(exp[1], exp[2], exp[3], nb_runs)
+        @time results = run_episodes(exp["name"], exp["env"], exp["agent"], nb_runs)
 
         # Store experiences's results
         push!(results_exps, results)
@@ -132,10 +132,10 @@ nb_runs = 300
 # ]
 
 experiences = [
-    #("Qlearning-Grid", WindyGridworld(), Qlearning(0.1, 0.5, 0.9, 4)),
-    #("Qlearning-Cliff", CliffWalking(), Qlearning(0.1, 0.5, 0.9, 4)),
-    #("Qlearning-Blackjack", Blackjack(), Qlearning(0.1, 0.5, 0.9, 4)),
-    ("Human", WindyGridworld(), HumanAgent()),
+    # Dict("name" => "Qlearning-Grid", "env" => WindyGridworld(), "agent" => Qlearning(0.1, 0.5, 0.9, 4)),
+    # Dict("name" => "Qlearning-Cliff", "env" => CliffWalking(), "agent" => Qlearning(0.1, 0.5, 0.9, 4)),
+    # Dict("name" => "Qlearning-Blackjack", "env" => Blackjack(), "agent" => Qlearning(0.1, 0.5, 0.9, 4)),
+    Dict("name" => "Human", "env" => Blackjack(), "agent" => HumanAgent()),
 ]
 
 # experiences = generate_parameters_study("epsilon-", KarmedBandit(10), EGreedy, 0:0.1:0.5)

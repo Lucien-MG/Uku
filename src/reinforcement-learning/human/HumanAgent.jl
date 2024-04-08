@@ -5,12 +5,13 @@ struct HumanAgent
 end
 
 function policy(HumanAgent::HumanAgent, state::Matrix{Int8})
-    println("state:")
+    println("state: ")
 
     for i = 1:size(state, 1)
         println(state[i, :])
     end
 
+    println()
     print("action: ")
 
     action_input_line = readline()
@@ -26,5 +27,7 @@ function learn(HumanAgent::HumanAgent, state::Matrix, state_prime::Matrix, actio
         println(state_prime[i, :])
     end
 
+    println()
     println("reward: ", reward)
+    println()
 end

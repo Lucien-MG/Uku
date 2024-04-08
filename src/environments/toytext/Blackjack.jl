@@ -37,7 +37,9 @@ function step(blackjack::Blackjack, action::Vector{Float64})
     end
 
     if action[2] == 1
-        blackjack.table[1, 2] += rand(blackjack.cards)
+        if blackjack.table[1, 2] < 17
+            blackjack.table[1, 2] += rand(blackjack.cards)
+        end
 
         if blackjack.table[1, 2] > 21
             return blackjack.table, 1., true
@@ -64,8 +66,8 @@ function reset(blackjack::Blackjack)
     blackjack.table[1, 2] = rand(blackjack.cards)
     blackjack.table[1, 3] = 0
 
-    if table[1, 1] == 22
-        table[1, 1] -= 10
+    if blackjack.table[1, 1] == 22
+        blackjack.table[1, 1] -= 10
     end
     
     return blackjack.table
