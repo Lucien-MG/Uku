@@ -23,7 +23,7 @@ include("reinforcement-learning/temporal-difference/Qlearning.jl")
 
 include("reinforcement-learning/human/HumanAgent.jl")
 
-function play_env(env, agent)
+function run_env(env, agent)
     index_reward, index_step = 0, 1
 
     state, finished = reset(env), false
@@ -50,7 +50,7 @@ function run_episodes(name, env, agent, nb_runs)
     nb_steps_by_episode = zeros(nb_runs)
 
     for i in 1:nb_runs
-        episode_reward, steps_played = play_env(env, agent)
+        episode_reward, steps_played = run_env(env, agent)
 
         reward_by_episode[i] = episode_reward
         nb_steps_by_episode[i] = steps_played
@@ -132,10 +132,10 @@ nb_runs = 300
 # ]
 
 experiences = [
-    # Dict("name" => "Qlearning-Grid", "env" => WindyGridworld(), "agent" => Qlearning(0.1, 0.5, 0.9, 4)),
-    # Dict("name" => "Qlearning-Cliff", "env" => CliffWalking(), "agent" => Qlearning(0.1, 0.5, 0.9, 4)),
-    # Dict("name" => "Qlearning-Blackjack", "env" => Blackjack(), "agent" => Qlearning(0.1, 0.5, 0.9, 4)),
-    Dict("name" => "Human", "env" => Blackjack(), "agent" => HumanAgent()),
+    #("Qlearning-Grid", WindyGridworld(), Qlearning(0.1, 0.5, 0.9, 4)),
+    #("Qlearning-Cliff", CliffWalking(), Qlearning(0.1, 0.5, 0.9, 4)),
+    #("Qlearning-Blackjack", Blackjack(), Qlearning(0.1, 0.5, 0.9, 4)),
+    ("Human", Blackjack(), HumanAgent()),
 ]
 
 # experiences = generate_parameters_study("epsilon-", KarmedBandit(10), EGreedy, 0:0.1:0.5)
